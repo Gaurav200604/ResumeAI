@@ -1,0 +1,13 @@
+npm create vite@lates .
+
+four 4 layer of react
+1 - UI => component , pages
+
+// for managing state and api layers
+2 - Hook =>hooks
+
+//data store krne ke liye
+3 - State => auth.context.jsx , ai.context.jsx
+
+// for communication with backend
+4 - Api => services->auth.api.jsx
