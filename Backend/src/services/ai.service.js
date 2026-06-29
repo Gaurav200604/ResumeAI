@@ -1,43 +1,7 @@
 const { GoogleGenAI } = require("@google/genai");
-const {z} = require("zod");
-const {zodToJsonSchema} = require("zod-to-json-schema");
-
-
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY,
-});
-
-
-
-const interviewReportSchema = z.object({
-
-    matchScore: z.number().describe("The match score between the candidate's resume and the job description."),
-    technicalQuestions: z.array(z.object({
-        question: z.string().describe("The technical question asked during the interview."),
-        intension: z.string().describe("The intention behind the technical question."),
-        answer: z.string().describe("The answer provided during the interview."),
-
-    })).describe("A list of technical questions asked during the interview, along with their intentions and answers."),
-
-    behavioralQuestions: z.array(z.object({
-        question: z.string().describe("The behavioral question asked during the interview."),
-        intension: z.string().describe("The intention behind the behavioral question."),
-        answer: z.string().describe("The answer provided during the interview."),
-
-    })).describe("A list of behavioral questions asked during the interview, along with their intentions and answers."),
-
-    skillGaps: z.array(z.object({
-        skill: z.string().describe("The skill that has a gap."),
-        severity: z.enum(['low', 'medium', 'high']).describe("The severity of the skill gap."),
-    })).describe("A list of skill gaps identified during the interview, along with their severity levels."),
-
-    preparationPlan: z.array(z.object({
-        day: z.number().describe("The day of the preparation plan."),
-        focus: z.string().describe("The focus area for the preparation plan."),
-        task: z.array(z.string()).describe("A list of tasks to be completed for the preparation plan."),
-    })).describe("A preparation plan for the interview, including the day, focus area, and tasks to be completed."),
-
 });
 
 
@@ -174,17 +138,56 @@ Job Description:
 ${jobDescription}
 `;
 
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config:{
-                responseMimeType: "application/json",
-                responseSchema: zodToJsonSchema(interviewReportSchema),
+        // Try preferred model first, fall back to stable model on 503/overload
+        const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
+        let response;
+        let lastError;
+
+        for (const model of models) {
+            for (let attempt = 1; attempt <= 3; attempt++) {
+                try {
+                    response = await ai.models.generateContent({
+                        model,
+                        contents: prompt,
+                        config: {
+                            responseMimeType: "application/json",
+                        },
+                    });
+                    // Success — break out of both loops
+                    lastError = null;
+                    break;
+                } catch (err) {
+                    lastError = err;
+                    const isOverload =
+                        err?.message?.includes("503") ||
+                        err?.message?.includes("UNAVAILABLE") ||
+                        err?.message?.includes("high demand");
+
+                    if (isOverload && attempt < 3) {
+                        // Exponential backoff: 2s, 4s
+                        const delay = attempt * 2000;
+                        console.warn(`[AI] ${model} overloaded (attempt ${attempt}). Retrying in ${delay}ms…`);
+                        await new Promise((r) => setTimeout(r, delay));
+                    } else {
+                        // Non-retryable error or last attempt — try next model
+                        console.warn(`[AI] ${model} failed after ${attempt} attempt(s): ${err.message}`);
+                        break;
+                    }
+                }
             }
-        });
+            if (response) break;
+        }
 
-        console.log(response.text);
+        if (!response) throw lastError;
 
-} 
+        // Strip markdown code fences if Gemini wraps the JSON (defensive)
+        let rawText = response.text.trim();
+        if (rawText.startsWith("```")) {
+            rawText = rawText.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
+        }
+
+        const parsed = JSON.parse(rawText);
+        return parsed;
+}
 
 module.exports = generateInterviewReport;
