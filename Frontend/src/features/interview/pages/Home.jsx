@@ -3,6 +3,7 @@ import "../Style/home.scss";
 import { useInterview } from "../hooks/useInterview.js";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../auth/hooks/useAuth.js";
+import Loader from "../../../components/Loader.jsx";
 
 const Home = () => {
     const { loading, generateReport, reports, getReports } = useInterview();
