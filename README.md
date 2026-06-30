@@ -1,31 +1,64 @@
-# InterviewAI — AI-Powered Interview Preparation Platform
+# Resume GenAI
 
-A full-stack web application that analyzes your resume and a job description to generate a personalized interview preparation report using Google Gemini AI.
+AI-powered resume analysis and interview preparation platform.
+
+Live App: https://resume-ai-gaurav13.vercel.app/
+
+Resume GenAI helps candidates prepare for job interviews by comparing a resume with a job description and generating a personalized interview preparation report. It includes match scoring, skill gap analysis, technical and behavioral interview questions, a preparation plan, and resume PDF generation.
 
 ---
 
 ## Features
 
-- **AI Interview Report** — Upload your resume (PDF) + paste a job description → get 10 technical questions, 5 behavioral questions, skill gap analysis, and a 7-day preparation plan
-- **Match Score** — Percentage score showing how well your resume aligns with the job
-- **Skill Gap Analysis** — Identifies missing skills with severity ratings (low / medium / high)
-- **Resume PDF Download** — AI-tailored resume generated from your report
-- **Authentication** — JWT-based auth with secure httpOnly cookies
-- **Report History** — All your past reports saved and accessible
+- AI interview report from resume PDF, self-description, and job description
+- Resume-to-job match score
+- Skill gap analysis with severity levels
+- Technical and behavioral interview questions
+- 7-day interview preparation plan
+- AI-generated resume PDF download
+- Secure authentication using JWT and httpOnly cookies
+- Saved report history for logged-in users
+- Rate limiting, validation, and security headers on the backend
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+| --- | --- |
 | Frontend | React 19, React Router 7, Axios, SCSS, Vite |
 | Backend | Node.js, Express 5 |
-| Database | MongoDB + Mongoose |
-| AI | Google Gemini 2.5 Flash (with 1.5 Flash fallback) |
-| PDF | pdf-parse (resume parsing), Puppeteer (PDF generation) |
-| Auth | JWT, bcryptjs |
-| Security | Helmet, express-rate-limit, Zod validation |
+| Database | MongoDB, Mongoose |
+| AI | Google Gemini |
+| PDF | pdf-parse, Puppeteer |
+| Auth | JWT, bcryptjs, httpOnly cookies |
+| Security | Helmet, express-rate-limit, Zod |
+| Deployment | Vercel frontend, Render backend |
+
+---
+
+## Project Structure
+
+```text
+resume_GenAI/
+|-- Backend/
+|   |-- src/
+|   |   |-- config/          # Database connection
+|   |   |-- controllers/     # Route handlers
+|   |   |-- middlewares/     # Auth, validation, upload, rate limiting
+|   |   |-- model/           # Mongoose models
+|   |   |-- routes/          # Express routes
+|   |   |-- services/        # Gemini AI service
+|   |   `-- app.js           # Express app setup
+|   `-- server.js            # Backend entry point
+`-- Frontend/
+    `-- src/
+        |-- features/
+        |   |-- auth/        # Login, register, auth context/hooks
+        |   `-- interview/   # Interview pages, hooks, API services
+        |-- App.jsx
+        `-- main.jsx
+```
 
 ---
 
@@ -33,110 +66,126 @@ A full-stack web application that analyzes your resume and a job description to 
 
 ### Prerequisites
 
-- Node.js 18+
-- MongoDB (local or Atlas)
-- Google Gemini API key — [get one here](https://aistudio.google.com/app/apikey)
+- Node.js 18 or newer
+- MongoDB local database or MongoDB Atlas cluster
+- Google Gemini API key from https://aistudio.google.com/app/apikey
 
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/your-username/resume-genai.git
 cd resume-genai
 ```
 
-### 2. Set up the Backend
+### 2. Set Up the Backend
 
 ```bash
 cd Backend
 npm install
 cp .env.example .env
-# Fill in your values in .env
 npm run dev
 ```
 
-### 3. Set up the Frontend
+Fill in `Backend/.env` before starting the server.
+
+### 3. Set Up the Frontend
 
 ```bash
 cd Frontend
 npm install
-# Optional: create .env with VITE_API_BASE_URL=http://localhost:3000/
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`
+The frontend runs locally at:
+
+```text
+http://localhost:5173
+```
+
+The backend runs locally at:
+
+```text
+http://localhost:3000
+```
 
 ---
 
 ## Environment Variables
 
-See [`Backend/.env.example`](./Backend/.env.example) for all required variables.
+Backend variables are documented in `Backend/.env.example`.
 
 | Variable | Description |
-|----------|-------------|
+| --- | --- |
 | `MONGO_URI` | MongoDB connection string |
-| `JWT_SECRET` | Secret key for signing JWTs (min 32 chars) |
+| `JWT_SECRET` | Secret used to sign JWT tokens |
 | `GOOGLE_GENAI_API_KEY` | Google Gemini API key |
-| `PORT` | Backend server port (default: 3000) |
+| `PORT` | Backend server port |
 | `NODE_ENV` | `development` or `production` |
-| `CLIENT_URL` | Frontend origin for CORS |
+| `CLIENT_URL` | Frontend origin allowed by CORS |
+| `CLIENT_URLS` | Optional comma-separated list of extra frontend origins |
+
+For production on Render, `CLIENT_URL` should be the frontend origin only:
+
+```env
+CLIENT_URL=https://resume-ai-gaurav13.vercel.app
+```
+
+For production on Vercel, set the frontend API URL:
+
+```env
+VITE_API_BASE_URL=https://resume-genai-backend.onrender.com/
+```
 
 ---
 
 ## API Endpoints
 
 ### Auth
+
 | Method | Route | Auth | Description |
-|--------|-------|------|-------------|
-| POST | `/api/auth/register` | Public | Register a new user |
-| POST | `/api/auth/login` | Public | Login |
-| POST | `/api/auth/logout` | Public | Logout |
-| GET | `/api/auth/get-me` | 🔒 JWT | Get current user |
+| --- | --- | --- | --- |
+| `POST` | `/api/auth/register` | Public | Register a new user |
+| `POST` | `/api/auth/login` | Public | Login user |
+| `POST` | `/api/auth/logout` | Public | Logout user |
+| `GET` | `/api/auth/get-me` | Required | Get current user |
 
 ### Interview
+
 | Method | Route | Auth | Description |
-|--------|-------|------|-------------|
-| POST | `/api/interview` | 🔒 JWT | Generate AI interview report |
-| GET | `/api/interview` | 🔒 JWT | Get all reports for user |
-| GET | `/api/interview/report/:id` | 🔒 JWT | Get single report |
-| GET | `/api/interview/resume/pdf/:id` | 🔒 JWT | Download tailored resume PDF |
+| --- | --- | --- | --- |
+| `POST` | `/api/interview` | Required | Generate interview report |
+| `GET` | `/api/interview` | Required | Get all saved reports |
+| `GET` | `/api/interview/report/:id` | Required | Get one report |
+| `GET` | `/api/interview/resume/pdf/:id` | Required | Download generated resume PDF |
 
 ---
 
 ## Rate Limits
 
-| Endpoint | Limit |
-|----------|-------|
-| Auth (login/register) | 10 requests / 15 min per IP |
-| Report generation | 5 requests / 10 min per IP |
-| All other routes | 100 requests / 15 min per IP |
+| Area | Limit |
+| --- | --- |
+| Login and register | 10 requests per 15 minutes per IP |
+| Report generation | 5 requests per 10 minutes per IP |
+| General API routes | 100 requests per 15 minutes per IP |
 
 ---
 
-## Project Structure
+## Deployment
 
-```
-resume_GenAI/
-├── Backend/
-│   ├── src/
-│   │   ├── config/         # Database connection
-│   │   ├── controllers/    # Route handlers
-│   │   ├── middlewares/    # Auth, validation, rate limiting, file upload
-│   │   ├── model/          # Mongoose schemas
-│   │   ├── routes/         # Express routers
-│   │   ├── services/       # AI service (Gemini)
-│   │   └── app.js          # Express app setup
-│   └── server.js           # Entry point
-└── Frontend/
-    └── src/
-        ├── features/
-        │   ├── auth/       # Login, Register, auth context/hooks
-        │   └── interview/  # Home, Interview page, context/hooks/services
-        ├── App.jsx
-        └── main.jsx
+The project is deployed with:
+
+- Frontend: Vercel
+- Backend: Render
+- Database: MongoDB Atlas
+
+Production app:
+
+```text
+https://resume-ai-gaurav13.vercel.app/
 ```
 
 ---
 
 ## Author
 
-Gaurav — [GitHub](https://github.com/your-username)
+Gaurav
