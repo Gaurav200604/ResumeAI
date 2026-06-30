@@ -1,142 +1,179 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+// ── Auth Form — Dark Design ────────────────────────────────────────────────────
+$bg:           #080b14;
+$surface:      #0e1120;
+$surface-2:    #141829;
+$border:       #1e2340;
+$border-focus: #6366f1;
+$accent:       #6366f1;
+$accent-glow:  rgba(99, 102, 241, 0.35);
+$accent-lite:  #a5b4fc;
+$text-primary: #eef0f9;
+$text-label:   #7c83b0;
+$text-muted:   #4a5280;
+$placeholder:  #30375e;
+$danger:       #f43f5e;
+$success:      #22d3a5;
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: #f0f2f5;
-}
-
-main {
+// ── Page Shell ────────────────────────────────────────────────────────────────
+main.auth-page {
+  width: 100%;
   min-height: 100vh;
-  width: 100%;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 1rem;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 60% 60% at 50% -10%, rgba(99,102,241,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 85% 80%, rgba(139,92,246,0.1) 0%, transparent 60%),
+    $bg;
+  padding: 1.5rem;
 }
 
-.login {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 2.5rem 2rem;
+// ── Card ──────────────────────────────────────────────────────────────────────
+.auth-card {
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  max-width: 420px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 20px;
+  padding: 2.5rem 2rem 2rem;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 24px 64px rgba(0,0,0,0.6),
+    0 0 80px rgba($accent, 0.06);
 
-  h1 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #1a1a2e;
-    margin-bottom: 0.375rem;
-    letter-spacing: -0.02em;
-  }
-
-  .subtitle {
-    font-size: 0.875rem;
-    color: #6b7280;
+  // ── Brand Mark ──────────────────────────────────────────────────────────────
+  .auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 2rem;
+
+    .auth-brand__icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba($accent, 0.12);
+      border: 1px solid rgba($accent, 0.25);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+
+      svg { stroke: $accent-lite; }
+    }
+
+    .auth-brand__name {
+      font-size: 15px;
+      font-weight: 700;
+      color: $text-primary;
+      letter-spacing: -0.01em;
+    }
   }
 
+  // ── Heading ──────────────────────────────────────────────────────────────────
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: $text-primary;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin-bottom: 0.35rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.875rem;
+    color: $text-muted;
+    margin-bottom: 1.75rem;
+    line-height: 1.5;
+  }
+
+  // ── Form ─────────────────────────────────────────────────────────────────────
   form {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.1rem;
     margin-bottom: 1.5rem;
   }
 
-  p {
+  // ── Footer Link ───────────────────────────────────────────────────────────────
+  .auth-footer {
     text-align: center;
-    font-size: 0.875rem;
-    color: #6b7280;
+    font-size: 0.85rem;
+    color: $text-muted;
 
     span {
-      color: #667eea;
-      font-weight: 500;
+      color: $accent-lite;
+      font-weight: 600;
       cursor: pointer;
-      transition: color 0.2s ease;
+      transition: color 0.2s;
 
-      &:hover {
-        color: #764ba2;
-        text-decoration: underline;
-      }
+      &:hover { color: lighten($accent-lite, 10%); text-decoration: underline; }
     }
   }
 }
 
+// ── Input Group ───────────────────────────────────────────────────────────────
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.4rem;
 
   label {
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: #374151;
-    letter-spacing: 0.01em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: $text-label;
   }
 
   input {
     width: 100%;
     padding: 0.75rem 1rem;
-    border: 1.5px solid #e5e7eb;
+    background: $surface-2;
+    border: 1.5px solid $border;
     border-radius: 10px;
-    font-size: 0.9375rem;
-    font-family: 'Inter', sans-serif;
-    color: #1a1a2e;
-    background: #fafafa;
-    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: $text-primary;
     outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 
-    &::placeholder {
-      color: #9ca3af;
-    }
+    &::placeholder { color: $placeholder; }
 
-    &:hover {
-      border-color: #c4b5fd;
-      background: #ffffff;
+    &:hover:not(:focus) {
+      border-color: rgba($accent, 0.25);
+      background: rgba($accent, 0.03);
     }
 
     &:focus {
-      border-color: #667eea;
-      background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+      border-color: $border-focus;
+      background: $surface-2;
+      box-shadow: 0 0 0 3px rgba($accent, 0.14);
     }
   }
 }
 
-.divider {
+// ── Error ─────────────────────────────────────────────────────────────────────
+.form-error {
+  font-size: 0.8rem;
+  color: $danger;
+  background: rgba($danger, 0.08);
+  border: 1px solid rgba($danger, 0.22);
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin: 0.5rem 0;
+  gap: 0.5rem;
 
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: #e5e7eb;
+  &::before {
+    content: '!';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: rgba($danger, 0.2);
+    font-size: 0.7rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    color: $danger;
   }
-
-  span {
-    font-size: 0.75rem;
-    color: #9ca3af;
-    white-space: nowrap;
-  }
-}
-
-.form-error {
-  font-size: 0.8125rem;
-  color: #dc2626;
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  border-radius: 8px;
-  padding: 0.625rem 0.875rem;
-  margin: 0;
 }

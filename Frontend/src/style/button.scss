@@ -1,90 +1,95 @@
+// ── Button System ──────────────────────────────────────────────────────────────
+$accent:      #6366f1;
+$accent-dark: #4f46e5;
+$danger:      #f43f5e;
+$border:      #1e2340;
+$text-muted:  #4a5280;
+$surface-2:   #141829;
+
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 10px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
   border: none;
   outline: none;
   transition: all 0.2s ease;
   letter-spacing: 0.01em;
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
 
-  &:active {
-    transform: scale(0.98);
-  }
-
-  &:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none;
-  }
+  &:active   { transform: scale(0.97); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; pointer-events: none; }
 }
 
 .primarybtn {
   width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+  background: linear-gradient(135deg, $accent-dark 0%, $accent 60%, lighten($accent, 12%) 100%);
+  color: #fff;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 4px 18px rgba($accent, 0.35);
 
-  &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #5a6fd6 0%, #6a3f96 100%);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
-    transform: translateY(-1px);
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s;
   }
 
-  &:active:not(:disabled) {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.18) inset,
+      0 8px 28px rgba($accent, 0.48);
+    &::after { left: 160%; }
   }
 }
 
 .secondarybtn {
   background: transparent;
-  color: #667eea;
-  border: 1.5px solid #667eea;
+  color: $accent;
+  border: 1.5px solid rgba($accent, 0.35);
 
   &:hover:not(:disabled) {
-    background: rgba(102, 126, 234, 0.06);
-    border-color: #764ba2;
-    color: #764ba2;
+    background: rgba($accent, 0.08);
+    border-color: rgba($accent, 0.6);
+    color: lighten($accent, 10%);
   }
 }
 
 .ghostbtn {
   background: transparent;
-  color: #6b7280;
-  border: 1.5px solid #e5e7eb;
+  color: $text-muted;
+  border: 1.5px solid $border;
 
   &:hover:not(:disabled) {
-    background: #f9fafb;
-    border-color: #d1d5db;
-    color: #374151;
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.12);
+    color: #eef0f9;
   }
 }
 
 .dangerbtn {
-  background: #fee2e2;
-  color: #dc2626;
-  border: 1.5px solid #fca5a5;
+  background: rgba($danger, 0.1);
+  color: $danger;
+  border: 1.5px solid rgba($danger, 0.3);
 
   &:hover:not(:disabled) {
-    background: #fecaca;
-    border-color: #f87171;
+    background: rgba($danger, 0.18);
+    border-color: rgba($danger, 0.5);
   }
 }
 
-.btn-sm {
-  padding: 0.5rem 0.875rem;
-  font-size: 0.8125rem;
-}
-
-.btn-lg {
-  padding: 0.875rem 1.5rem;
-  font-size: 1rem;
-}
+.btn-sm { padding: 0.5rem 1rem;  font-size: 0.8rem; }
+.btn-lg { padding: 0.875rem 2rem; font-size: 1rem; }
