@@ -11,14 +11,39 @@ const app = express();
 app.use(helmet());
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-const allowedOrigins = [
+function normalizeOrigin(value) {
+    if (!value) return null;
+
+    try {
+        return new URL(value.trim()).origin;
+    } catch {
+        return value.trim().replace(/\/$/, '');
+    }
+}
+
+const configuredOrigins = [
     process.env.CLIENT_URL,
+    process.env.CLIENT_URLS,
+]
+    .filter(Boolean)
+    .flatMap((value) => value.split(','))
+    .map(normalizeOrigin)
+    .filter(Boolean);
+
+const allowedOrigins = [
+    ...configuredOrigins,
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-].filter(Boolean);
+];
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
     credentials: true,
 }));
 
