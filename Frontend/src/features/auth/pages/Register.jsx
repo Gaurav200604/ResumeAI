@@ -3,6 +3,7 @@ import '../auth.form.scss'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../hooks/useAuth.js';
 import Loader from '../../../components/Loader.jsx';
+import { getAuthErrorMessage } from '../services/errorMessage.js';
 
 const Register = () => {
     const { loading, handleRegister } = useAuth();
@@ -19,7 +20,7 @@ const Register = () => {
             await handleRegister(username, email, password);
             navigate('/');
         } catch (err) {
-            setError(err?.response?.data?.message || "Registration failed. Please try again.");
+            setError(getAuthErrorMessage(err, "Registration failed. Please try again."));
         }
     };
 
@@ -55,6 +56,8 @@ const Register = () => {
                             type="text"
                             id="username"
                             placeholder="Choose a username"
+                            minLength={3}
+                            maxLength={30}
                             required
                         />
                     </div>
@@ -77,12 +80,13 @@ const Register = () => {
                             type="password"
                             id="password"
                             placeholder="Create a password"
+                            minLength={6}
                             required
                         />
                     </div>
                     {error && <p className="form-error">{error}</p>}
                     <button className="btn primarybtn" type="submit" disabled={loading}>
-                        {loading ? 'Creating account…' : 'Create Account'}
+                        {loading ? 'Creating account...' : 'Create Account'}
                     </button>
                 </form>
 

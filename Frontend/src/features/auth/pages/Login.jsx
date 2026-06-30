@@ -3,6 +3,7 @@ import '../auth.form.scss'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../hooks/useAuth.js';
 import Loader from '../../../components/Loader.jsx';
+import { getAuthErrorMessage } from '../services/errorMessage.js';
 
 const Login = () => {
     const { loading, handleLogin } = useAuth();
@@ -18,7 +19,7 @@ const Login = () => {
             await handleLogin(email, password);
             navigate('/');
         } catch (err) {
-            setError(err?.response?.data?.message || "Login failed. Please check your credentials.");
+            setError(getAuthErrorMessage(err, "Login failed. Please check your credentials."));
         }
     };
 
@@ -70,7 +71,7 @@ const Login = () => {
                     </div>
                     {error && <p className="form-error">{error}</p>}
                     <button className="btn primarybtn" type="submit" disabled={loading}>
-                        {loading ? 'Signing in…' : 'Sign In'}
+                        {loading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
 
