@@ -5,7 +5,7 @@ const BlacklistToken = require('../model/blacklist.model');
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
     secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000, // 1 day
 };
@@ -79,7 +79,11 @@ async function logoutUserController(req, res) {
         if (token) {
             await BlacklistToken.create({ token });
         }
-        res.clearCookie("token", COOKIE_OPTIONS);
+        res.clearCookie("token", {
+            httpOnly: true,
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            secure: process.env.NODE_ENV === 'production',
+        });
         res.status(200).json({ message: "Logout successful" });
     } catch (err) {
         console.error("[Auth - logout]", err);
