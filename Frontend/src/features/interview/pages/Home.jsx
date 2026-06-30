@@ -1,11 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "../Style/home.scss";
 import { useInterview } from "../hooks/useInterview.js";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../auth/hooks/useAuth.js";
 
 const Home = () => {
-    const { loading, generateReport, reports } = useInterview();
+    const { loading, generateReport, reports, getReports } = useInterview();
     const { user, handleLogout } = useAuth();
     const [jobDescription, setJobDescription] = useState('');
     const [selfDescription, setSelfDescription] = useState('');
@@ -13,6 +13,11 @@ const Home = () => {
     const [error, setError] = useState('');
     const resumeInputRef = useRef(null);
     const navigate = useNavigate();
+
+    // Fetch recent reports when the home page mounts
+    useEffect(() => {
+        getReports();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleGenerateReport = async () => {
         const resumeFile = resumeInputRef.current?.files[0];

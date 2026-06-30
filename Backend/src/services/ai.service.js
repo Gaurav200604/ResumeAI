@@ -182,7 +182,11 @@ ${jobDescription}
         if (!response) throw lastError;
 
         // Strip markdown code fences if Gemini wraps the JSON (defensive)
-        let rawText = response.text.trim();
+        const rawResponse = response.text;
+        if (!rawResponse) {
+            throw new Error("AI model returned an empty response. Please try again.");
+        }
+        let rawText = rawResponse.trim();
         if (rawText.startsWith("```")) {
             rawText = rawText.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
         }
@@ -235,7 +239,11 @@ RULES:
     contents: prompt,
   });
 
-  let html = response.text.trim();
+  let html = response.text;
+  if (!html) {
+      throw new Error("AI model returned an empty response for resume PDF.");
+  }
+  html = html.trim();
   // Strip markdown fences if present
   if (html.startsWith("```")) {
     html = html.replace(/^```(?:html)?\s*/i, "").replace(/```\s*$/, "").trim();

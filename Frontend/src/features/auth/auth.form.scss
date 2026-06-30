@@ -1,4 +1,6 @@
 // ── Auth Form — Dark Design ────────────────────────────────────────────────────
+@use "sass:color";
+
 $bg:           #080b14;
 $surface:      #0e1120;
 $surface-2:    #141829;
@@ -104,7 +106,7 @@ main.auth-page {
       cursor: pointer;
       transition: color 0.2s;
 
-      &:hover { color: lighten($accent-lite, 10%); text-decoration: underline; }
+      &:hover { color: color.adjust($accent-lite, $lightness: 10%); text-decoration: underline; }
     }
   }
 }

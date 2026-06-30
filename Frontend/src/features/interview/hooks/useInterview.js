@@ -1,5 +1,5 @@
 import {getAllInterviewReports,generateInterviewReport,getInterviewReportById,generateResumePdf} from '../services/interview.api.js'
-import {useContext, useEffect} from 'react'
+import {useContext} from 'react'
 import {InterviewContext} from '../interview.context.jsx'
 
 
@@ -81,13 +81,5 @@ export const useInterview = () => {
         }
     }
 
-
-    useEffect(() => { 
-        getReports()
-    }, [])
-
     return {loading,report,reports,generateReport,getReportById,getReports,getResumePdf}
-
-
-
 }

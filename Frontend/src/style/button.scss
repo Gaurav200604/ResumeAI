@@ -1,4 +1,6 @@
 // ── Button System ──────────────────────────────────────────────────────────────
+@use "sass:color";
+
 $accent:      #6366f1;
 $accent-dark: #4f46e5;
 $danger:      #f43f5e;
@@ -31,7 +33,7 @@ $surface-2:   #141829;
 
 .primarybtn {
   width: 100%;
-  background: linear-gradient(135deg, $accent-dark 0%, $accent 60%, lighten($accent, 12%) 100%);
+  background: linear-gradient(135deg, $accent-dark 0%, $accent 60%, color.adjust($accent, $lightness: 12%) 100%);
   color: #fff;
   box-shadow:
     0 1px 0 rgba(255,255,255,0.12) inset,
@@ -64,7 +66,7 @@ $surface-2:   #141829;
   &:hover:not(:disabled) {
     background: rgba($accent, 0.08);
     border-color: rgba($accent, 0.6);
-    color: lighten($accent, 10%);
+    color: color.adjust($accent, $lightness: 10%);
   }
 }
 
