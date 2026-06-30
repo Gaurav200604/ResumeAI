@@ -1,4 +1,5 @@
 const { GoogleGenAI } = require("@google/genai");
+const puppeteer = require("puppeteer");
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY,
@@ -190,4 +191,66 @@ ${jobDescription}
         return parsed;
 }
 
-module.exports = generateInterviewReport;
+async function generatePDFfromHTML(htmlContent) {
+  const browser= await puppeteer.launch();
+  const page = await browser.newPage();
+
+  await page.setContent(htmlContent, {waitUntil: "networkidle0"});
+  const pdfBuffer = await page.pdf({format: "A4" , margin: {top: "20px", bottom: "20px", left: "20px", right: "20px"}});
+  await browser.close();
+
+  return pdfBuffer;
+
+}
+
+async function generateResumePdf({resume, selfDescription, jobDescription}) {
+  const prompt = `
+You are a professional resume writer. Create a clean, modern, well-formatted HTML resume document.
+
+Use the candidate's resume content, self-description, and job description below.
+Tailor the resume to highlight relevant experience for the job.
+
+Return ONLY a complete, valid HTML document with inline CSS styles (no external stylesheets).
+The HTML must be self-contained and print-ready for A4 paper.
+
+Resume Content:
+${resume}
+
+Self Description:
+${selfDescription}
+
+Target Job Description:
+${jobDescription}
+
+RULES:
+1. Return ONLY the HTML document, nothing else.
+2. Use clean, professional styling with inline CSS.
+3. No markdown, no explanations.
+4. Include sections: Contact (placeholder), Summary, Skills, Experience, Education.
+5. Keep fonts system-safe (Arial, Helvetica, sans-serif).
+`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+  });
+
+  let html = response.text.trim();
+  // Strip markdown fences if present
+  if (html.startsWith("```")) {
+    html = html.replace(/^```(?:html)?\s*/i, "").replace(/```\s*$/, "").trim();
+  }
+
+  const browser = await puppeteer.launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"] });
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: "networkidle0" });
+  const pdfBuffer = await page.pdf({ format: "A4", margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" } });
+  await browser.close();
+
+  return pdfBuffer;
+}
+
+module.exports = { generateInterviewReport, generateResumePdf };  
+
+
+

@@ -1,46 +1,104 @@
-/* ── Design tokens ────────────────────────────────────────── */
-$bg:          #0d0f1a;
-$surface:     #13162a;
-$surface-2:   #1a1e35;
-$border:      #1e2240;
-$border-focus:#6366f1;
-$accent:      #6366f1;
-$accent-glow: rgba(99, 102, 241, 0.35);
-$accent-lite: #a5b4fc;
-$text-primary:#e8eaf6;
-$text-label:  #a5b4fc;
-$text-muted:  #4a5180;
-$placeholder: #3a4070;
+// ── Design Tokens ─────────────────────────────────────────────────────────────
+$bg:           #0a0c18;
+$surface:      #11142a;
+$surface-2:    #181c34;
+$border:       #1f2347;
+$border-focus: #6366f1;
+$accent:       #6366f1;
+$accent-glow:  rgba(99, 102, 241, 0.35);
+$accent-lite:  #a5b4fc;
+$success:      #3fb950;
+$warning:      #f5a623;
+$danger:       #ff4d4d;
+$text-primary: #e8eaf6;
+$text-label:   #a5b4fc;
+$text-muted:   #4a5180;
+$placeholder:  #3a4070;
 
-/* ── Base reset helpers ───────────────────────────────────── */
+// ── Global Reset ──────────────────────────────────────────────────────────────
 *, *::before, *::after { box-sizing: border-box; }
 
-body {
-  margin: 0;
-  background: $bg;
-  color: $text-primary;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ── Layout ───────────────────────────────────────────────── */
-.home {
+// ── Page Wrapper ──────────────────────────────────────────────────────────────
+.home-wrapper {
   width: 100%;
   min-height: 100vh;
+  background:
+    radial-gradient(ellipse 70% 50% at 80% 90%, rgba(99,102,241,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 15% 10%, rgba(139,92,246,0.05) 0%, transparent 70%),
+    $bg;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Top Bar ───────────────────────────────────────────────────────────────────
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 58px;
+  border-bottom: 1px solid $border;
+  background: rgba($surface, 0.7);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: $text-primary;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+
+    svg { stroke: $accent; }
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__username {
+    font-size: 13px;
+    color: $text-label;
+    font-weight: 500;
+  }
+
+  &__logout {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-muted;
+    background: none;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    font-family: inherit;
+
+    &:hover {
+      color: $danger;
+      border-color: rgba($danger, 0.4);
+      background: rgba($danger, 0.06);
+    }
+  }
+}
+
+// ── Two-Panel Home Layout ─────────────────────────────────────────────────────
+.home {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   gap: 24px;
-  padding: 48px 40px;
-
-  /* Subtle radial aurora behind the whole layout */
-  background:
-    radial-gradient(ellipse 60% 40% at 70% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 30% at 20% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 70%),
-    $bg;
+  padding: 36px 40px 48px;
 }
 
-/* ── Shared card surface ──────────────────────────────────── */
+// ── Shared Card Surface ───────────────────────────────────────────────────────
 .left,
 .right {
   flex: 1;
@@ -53,44 +111,53 @@ body {
     0 24px 48px rgba(0,0,0,0.4);
 }
 
-/* ── LEFT PANEL — editor ──────────────────────────────────── */
+// ── Shared Panel Header ───────────────────────────────────────────────────────
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $accent;
+    box-shadow: 0 0 8px $accent-glow;
+    flex-shrink: 0;
+  }
+
+  span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $text-label;
+  }
+}
+
+.panel-sub {
+  font-size: 13px;
+  color: $text-muted;
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+
+// ── Left Panel ────────────────────────────────────────────────────────────────
 .left {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-
-  .panel-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: $accent;
-      box-shadow: 0 0 8px $accent-glow;
-    }
-
-    span {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: $text-label;
-    }
-  }
+  gap: 14px;
 
   textarea {
     flex: 1;
     width: 100%;
-    min-height: 500px;
+    min-height: 480px;
     background: $surface-2;
     border: 1px solid $border;
     border-radius: 14px;
     padding: 20px;
-    font-size: 15px;
-    line-height: 1.7;
+    font-size: 14px;
+    line-height: 1.75;
     color: $text-primary;
     resize: none;
     outline: none;
@@ -99,18 +166,18 @@ body {
 
     &:focus {
       border-color: $border-focus;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
     }
 
     &::placeholder { color: $placeholder; }
   }
 }
 
-/* ── RIGHT PANEL — controls ───────────────────────────────── */
+// ── Right Panel ───────────────────────────────────────────────────────────────
 .right {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 
   .input-group {
     display: flex;
@@ -118,28 +185,28 @@ body {
     gap: 8px;
 
     label {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: $text-label;
     }
 
-    /* File upload */
     input[type="file"] {
       padding: 14px 16px;
-      border: 1px dashed rgba(99, 102, 241, 0.4);
+      border: 1px dashed rgba(99,102,241,0.4);
       border-radius: 12px;
-      background: rgba(99, 102, 241, 0.04);
+      background: rgba(99,102,241,0.04);
       color: $text-muted;
       font-size: 13px;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
       font-family: inherit;
+      width: 100%;
 
       &:hover {
         border-color: $border-focus;
-        background: rgba(99, 102, 241, 0.08);
+        background: rgba(99,102,241,0.08);
         color: $text-primary;
       }
 
@@ -157,11 +224,10 @@ body {
       }
     }
 
-    /* Secondary textarea */
     textarea {
-      min-height: 160px;
+      min-height: 130px;
       resize: vertical;
-      padding: 16px;
+      padding: 14px 16px;
       background: $surface-2;
       border: 1px solid $border;
       border-radius: 14px;
@@ -174,60 +240,64 @@ body {
 
       &:focus {
         border-color: $border-focus;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
       }
 
       &::placeholder { color: $placeholder; }
     }
   }
 
-  /* ── Divider ──────────────────────────────────────────── */
-  .divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, $border 30%, $border 70%, transparent);
+  // ── Form Error ──────────────────────────────────────────────────────────────
+  .form-error {
+    font-size: 13px;
+    color: $danger;
+    background: rgba($danger, 0.08);
+    border: 1px solid rgba($danger, 0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 0;
   }
 
-  /* ── Generate button (signature element) ─────────────── */
+  // ── Generate Button ──────────────────────────────────────────────────────────
   .generate-btn-wrap {
-    margin-top: auto;
     position: relative;
 
-    /* Aurora glow behind button */
     &::before {
       content: "";
       position: absolute;
-      inset: -12px -10px;
-      background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.22) 0%, transparent 70%);
+      inset: -14px -12px;
+      background: radial-gradient(ellipse at center, rgba(99,102,241,0.2) 0%, transparent 70%);
       border-radius: 24px;
       opacity: 0;
       transition: opacity 0.4s;
       pointer-events: none;
     }
 
-    &:hover::before {
-      opacity: 1;
-    }
+    &:hover::before { opacity: 1; }
   }
 
   .generate-btn {
     position: relative;
     width: 100%;
-    padding: 16px 24px;
+    padding: 15px 24px;
     border: none;
     border-radius: 14px;
     background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%);
     color: #fff;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     cursor: pointer;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.2s, box-shadow 0.2s;
     box-shadow:
       0 1px 0 rgba(255,255,255,0.15) inset,
-      0 4px 16px rgba(99, 102, 241, 0.3);
+      0 4px 16px rgba(99,102,241,0.3);
+    font-family: inherit;
 
-    /* Shimmer sweep */
     &::after {
       content: "";
       position: absolute;
@@ -236,39 +306,175 @@ body {
       height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
       transform: skewX(-20deg);
-      transition: left 0.5s;
+      transition: left 0.55s;
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow:
         0 1px 0 rgba(255,255,255,0.2) inset,
-        0 8px 28px rgba(99, 102, 241, 0.45);
-
+        0 8px 28px rgba(99,102,241,0.45);
       &::after { left: 160%; }
     }
 
-    &:active {
+    &:active:not(:disabled) {
       transform: scale(0.98) translateY(0);
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
   }
 }
 
-/* ── Responsive ───────────────────────────────────────────── */
-@media (max-width: 900px) {
+// ── Recent Reports ────────────────────────────────────────────────────────────
+.recent-reports {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+
+  &__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $text-label;
+    margin: 0;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+.report-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: $surface-2;
+  border: 1px solid $border;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:hover {
+    border-color: $border-focus;
+    background: rgba($accent, 0.05);
+  }
+
+  &__left { display: flex; flex-direction: column; gap: 2px; }
+
+  &__date {
+    font-size: 12px;
+    color: $text-muted;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+
+    svg { stroke: $text-muted; }
+  }
+
+  &__score {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+
+    &.high {
+      color: $success;
+      background: rgba($success, 0.1);
+      border-color: rgba($success, 0.25);
+    }
+    &.medium {
+      color: $warning;
+      background: rgba($warning, 0.1);
+      border-color: rgba($warning, 0.25);
+    }
+    &.low {
+      color: $danger;
+      background: rgba($danger, 0.1);
+      border-color: rgba($danger, 0.25);
+    }
+  }
+}
+
+// ── Generating Screen ─────────────────────────────────────────────────────────
+.generating-screen {
+  width: 100%;
+  min-height: 100vh;
+  background: $bg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    max-width: 400px;
+    padding: 0 24px;
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0;
+    }
+
+    p {
+      font-size: 14px;
+      color: $text-muted;
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+}
+
+.generating-spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid $border;
+  border-top-color: $accent;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 960px) {
+  .topbar { padding: 0 20px; }
+
   .home {
     flex-direction: column;
-    padding: 20px 16px;
+    padding: 20px 16px 40px;
     align-items: stretch;
   }
 
-  .left,
-  .right {
+  .left, .right {
     width: 100%;
   }
 
-  .left textarea {
-    min-height: 280px;
-  }
+  .left textarea { min-height: 240px; }
+}
+
+@media (max-width: 480px) {
+  .topbar__username { display: none; }
 }

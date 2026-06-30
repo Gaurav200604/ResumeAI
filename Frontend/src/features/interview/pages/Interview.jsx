@@ -1,19 +1,30 @@
-import React, { useState, useEffect } from 'react'
-import '../style/interview.scss'
+import { useState, useEffect } from 'react'
+import '../Style/interview.scss'
 import { useNavigate, useParams } from 'react-router'
 import { useInterview } from '../hooks/useInterview.js'
 
-
-
 const NAV_ITEMS = [
-    { id: 'technical', label: 'Technical Questions', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>) },
-    { id: 'behavioral', label: 'Behavioral Questions', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>) },
-    { id: 'roadmap', label: 'Road Map', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>) },
+    {
+        id: 'technical', label: 'Technical Questions',
+        icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>)
+    },
+    {
+        id: 'behavioral', label: 'Behavioral Questions',
+        icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>)
+    },
+    {
+        id: 'skillgaps', label: 'Skill Gaps',
+        icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>)
+    },
+    {
+        id: 'roadmap', label: 'Preparation Plan',
+        icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>)
+    },
 ]
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Question Card ─────────────────────────────────────────────────────────────
 const QuestionCard = ({ item, index }) => {
-    const [ open, setOpen ] = useState(false)
+    const [open, setOpen] = useState(false)
     return (
         <div className='q-card'>
             <div className='q-card__header' onClick={() => setOpen(o => !o)}>
@@ -39,6 +50,7 @@ const QuestionCard = ({ item, index }) => {
     )
 }
 
+// ── Roadmap Day ───────────────────────────────────────────────────────────────
 const RoadMapDay = ({ day }) => (
     <div className='roadmap-day'>
         <div className='roadmap-day__header'>
@@ -56,24 +68,61 @@ const RoadMapDay = ({ day }) => (
     </div>
 )
 
+// ── Skill Gaps Section ────────────────────────────────────────────────────────
+const SkillGapsSection = ({ skillGaps }) => (
+    <section>
+        <div className='content-header'>
+            <h2>Skill Gaps</h2>
+            <span className='content-header__count'>{skillGaps.length} gaps identified</span>
+        </div>
+        <div className='skill-gaps-grid'>
+            {skillGaps.length === 0 ? (
+                <p className='no-gaps'>No skill gaps found — great match!</p>
+            ) : (
+                skillGaps.map((gap, i) => (
+                    <div key={i} className={`skill-gap-card skill-gap-card--${gap.severity}`}>
+                        <span className='skill-gap-card__name'>{gap.skill}</span>
+                        <span className={`skill-gap-card__badge skill-gap-card__badge--${gap.severity}`}>
+                            {gap.severity}
+                        </span>
+                    </div>
+                ))
+            )}
+        </div>
+    </section>
+)
+
 // ── Main Component ────────────────────────────────────────────────────────────
 const Interview = () => {
-    const [ activeNav, setActiveNav ] = useState('technical')
-    const { report, getReportById, loading } = useInterview()
+    const [activeNav, setActiveNav] = useState('technical')
+    const [pdfLoading, setPdfLoading] = useState(false)
+    const { report, getReportById, loading, getResumePdf } = useInterview()
     const { interviewId } = useParams()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (interviewId) {
             getReportById(interviewId)
         }
-    }, [ interviewId ])
+    }, [interviewId])
 
-
+    const handleDownloadPdf = async () => {
+        try {
+            setPdfLoading(true)
+            await getResumePdf(interviewId)
+        } catch {
+            alert("Failed to generate PDF. Please try again.")
+        } finally {
+            setPdfLoading(false)
+        }
+    }
 
     if (loading || !report) {
         return (
             <main className='loading-screen'>
-                <h1>Loading your interview plan...</h1>
+                <div className='loading-spinner' />
+                <h1>Generating your interview plan...</h1>
+                <p>This may take a few seconds</p>
             </main>
         )
     }
@@ -82,6 +131,10 @@ const Interview = () => {
         report.matchScore >= 80 ? 'score--high' :
             report.matchScore >= 60 ? 'score--mid' : 'score--low'
 
+    const scoreLabel =
+        report.matchScore >= 80 ? 'Strong match for this role' :
+            report.matchScore >= 60 ? 'Moderate match — keep preparing' :
+                'Low match — significant preparation needed'
 
     return (
         <div className='interview-page'>
@@ -102,12 +155,34 @@ const Interview = () => {
                             </button>
                         ))}
                     </div>
-                    <button
-                        onClick={() => { window.open(`/api/interview/resume/${interviewId}`, '_blank') }}
-                        className='button primary-button' >
-                        <svg height={"0.8rem"} style={{ marginRight: "0.8rem" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10.6144 17.7956 11.492 15.7854C12.2731 13.9966 13.6789 12.5726 15.4325 11.7942L17.8482 10.7219C18.6162 10.381 18.6162 9.26368 17.8482 8.92277L15.5079 7.88394C13.7092 7.08552 12.2782 5.60881 11.5105 3.75894L10.6215 1.61673C10.2916.821765 9.19319.821767 8.8633 1.61673L7.97427 3.75892C7.20657 5.60881 5.77553 7.08552 3.97685 7.88394L1.63658 8.92277C.868537 9.26368.868536 10.381 1.63658 10.7219L4.0523 11.7942C5.80589 12.5726 7.21171 13.9966 7.99275 15.7854L8.8704 17.7956C9.20776 18.5682 10.277 18.5682 10.6144 17.7956ZM19.4014 22.6899 19.6482 22.1242C20.0882 21.1156 20.8807 20.3125 21.8695 19.8732L22.6299 19.5353C23.0412 19.3526 23.0412 18.7549 22.6299 18.5722L21.9121 18.2532C20.8978 17.8026 20.0911 16.9698 19.6586 15.9269L19.4052 15.3156C19.2285 14.8896 18.6395 14.8896 18.4628 15.3156L18.2094 15.9269C17.777 16.9698 16.9703 17.8026 15.956 18.2532L15.2381 18.5722C14.8269 18.7549 14.8269 19.3526 15.2381 19.5353L15.9985 19.8732C16.9874 20.3125 17.7798 21.1156 18.2198 22.1242L18.4667 22.6899C18.6473 23.104 19.2207 23.104 19.4014 22.6899Z"></path></svg>
-                        Download Resume
-                    </button>
+
+                    <div className='nav-actions'>
+                        <button
+                            onClick={handleDownloadPdf}
+                            disabled={pdfLoading}
+                            className='button primary-button'
+                        >
+                            {pdfLoading ? (
+                                <span>Generating...</span>
+                            ) : (
+                                <>
+                                    <svg height="0.85rem" style={{ marginRight: "0.6rem" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+                                    </svg>
+                                    Download Resume PDF
+                                </>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => navigate('/')}
+                            className='button secondary-button'
+                        >
+                            <svg height="0.85rem" style={{ marginRight: "0.6rem" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+                            </svg>
+                            New Report
+                        </button>
+                    </div>
                 </nav>
 
                 <div className='interview-divider' />
@@ -118,10 +193,10 @@ const Interview = () => {
                         <section>
                             <div className='content-header'>
                                 <h2>Technical Questions</h2>
-                                <span className='content-header__count'>{report.technicalQuestions.length} questions</span>
+                                <span className='content-header__count'>{report.technicalQuestions?.length ?? 0} questions</span>
                             </div>
                             <div className='q-list'>
-                                {report.technicalQuestions.map((q, i) => (
+                                {(report.technicalQuestions || []).map((q, i) => (
                                     <QuestionCard key={i} item={q} index={i} />
                                 ))}
                             </div>
@@ -132,24 +207,28 @@ const Interview = () => {
                         <section>
                             <div className='content-header'>
                                 <h2>Behavioral Questions</h2>
-                                <span className='content-header__count'>{report.behavioralQuestions.length} questions</span>
+                                <span className='content-header__count'>{report.behavioralQuestions?.length ?? 0} questions</span>
                             </div>
                             <div className='q-list'>
-                                {report.behavioralQuestions.map((q, i) => (
+                                {(report.behavioralQuestions || []).map((q, i) => (
                                     <QuestionCard key={i} item={q} index={i} />
                                 ))}
                             </div>
                         </section>
                     )}
 
+                    {activeNav === 'skillgaps' && (
+                        <SkillGapsSection skillGaps={report.skillGaps || []} />
+                    )}
+
                     {activeNav === 'roadmap' && (
                         <section>
                             <div className='content-header'>
                                 <h2>Preparation Road Map</h2>
-                                <span className='content-header__count'>{report.preparationPlan.length}-day plan</span>
+                                <span className='content-header__count'>{report.preparationPlan?.length ?? 0}-day plan</span>
                             </div>
                             <div className='roadmap-list'>
-                                {report.preparationPlan.map((day) => (
+                                {(report.preparationPlan || []).map((day) => (
                                     <RoadMapDay key={day.day} day={day} />
                                 ))}
                             </div>
@@ -161,31 +240,50 @@ const Interview = () => {
 
                 {/* ── Right Sidebar ── */}
                 <aside className='interview-sidebar'>
-
-                    {/* Match Score */}
                     <div className='match-score'>
                         <p className='match-score__label'>Match Score</p>
                         <div className={`match-score__ring ${scoreColor}`}>
                             <span className='match-score__value'>{report.matchScore}</span>
                             <span className='match-score__pct'>%</span>
                         </div>
-                        <p className='match-score__sub'>Strong match for this role</p>
+                        <p className={`match-score__sub match-score__sub--${scoreColor.replace('score--', '')}`}>
+                            {scoreLabel}
+                        </p>
                     </div>
 
                     <div className='sidebar-divider' />
 
-                    {/* Skill Gaps */}
                     <div className='skill-gaps'>
                         <p className='skill-gaps__label'>Skill Gaps</p>
                         <div className='skill-gaps__list'>
-                            {report.skillGaps.map((gap, i) => (
+                            {(report.skillGaps || []).map((gap, i) => (
                                 <span key={i} className={`skill-tag skill-tag--${gap.severity}`}>
                                     {gap.skill}
                                 </span>
                             ))}
+                            {(!report.skillGaps || report.skillGaps.length === 0) && (
+                                <span className='skill-tag skill-tag--low'>No gaps found</span>
+                            )}
                         </div>
                     </div>
 
+                    <div className='sidebar-divider' />
+
+                    <div className='sidebar-meta'>
+                        <p className='sidebar-meta__label'>Report Details</p>
+                        <div className='sidebar-meta__row'>
+                            <span>Technical Qs</span>
+                            <span>{report.technicalQuestions?.length ?? 0}</span>
+                        </div>
+                        <div className='sidebar-meta__row'>
+                            <span>Behavioral Qs</span>
+                            <span>{report.behavioralQuestions?.length ?? 0}</span>
+                        </div>
+                        <div className='sidebar-meta__row'>
+                            <span>Prep Days</span>
+                            <span>{report.preparationPlan?.length ?? 0}</span>
+                        </div>
+                    </div>
                 </aside>
             </div>
         </div>

@@ -11,3 +11,6 @@ four 4 layer of react
 
 // for communication with backend
 4 - Api => services->auth.api.jsx
+
+
+// we use npm puppeter - it help to create pdf form the html it enable the feature from browser

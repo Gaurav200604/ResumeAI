@@ -1,5 +1,5 @@
 const { PDFParse } = require('pdf-parse');
-const generateInterviewReport = require('../services/ai.service');
+const {generateInterviewReport , generateResumePdf} = require('../services/ai.service');
 const InterviewReportModel = require('../model/interviewReport.model');
 
 
@@ -86,4 +86,36 @@ async function getAllInterviewReportsController(req, res) {
     }
 }
 
-module.exports ={generateInterviewReportController ,getInterviewReportController, getAllInterviewReportsController};
+/**
+ * @description Generate and download a tailored resume PDF for a specific report.
+ */
+async function generateInterviewReportPDFController(req, res) {
+    try {
+        const { interviewReportId } = req.params;
+
+        const interviewReport = await InterviewReportModel.findOne({
+            _id: interviewReportId,
+            user: req.user.id,   // ensure the report belongs to the requesting user
+        });
+
+        if (!interviewReport) {
+            return res.status(404).json({ error: "Interview report not found." });
+        }
+
+        const { resume, jobDescription, selfDescription } = interviewReport;
+        const pdfBuffer = await generateResumePdf({ resume, selfDescription, jobDescription });
+
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="resume_${interviewReportId}.pdf"`,
+            'Content-Length': pdfBuffer.length,
+        });
+
+        res.send(pdfBuffer);
+    } catch (err) {
+        console.error("[Interview Controller - PDF]", err);
+        res.status(500).json({ error: "Failed to generate PDF.", details: err.message });
+    }
+}
+
+module.exports ={generateInterviewReportController ,getInterviewReportController, getAllInterviewReportsController,generateInterviewReportPDFController};
